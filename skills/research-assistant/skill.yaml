@@ -1,0 +1,126 @@
+# FGP Skill Manifest - Research Assistant
+# This skill demonstrates the composed skill format
+
+name: research-assistant
+version: 1.0.0
+description: Research topics using web search and optionally email findings
+author:
+  name: FGP Team
+  email: team@fgp.dev
+  url: https://fgp.dev
+license: MIT
+repository: https://github.com/fast-gateway-protocol/skills
+homepage: https://fgp.dev/skills/research-assistant
+keywords:
+  - research
+  - search
+  - browser
+  - email
+
+# Daemon dependencies (Layer 0)
+daemons:
+  - name: browser
+    version: ">=1.0.0"
+    methods:
+      - open
+      - snapshot
+      - fill
+      - click
+  - name: gmail
+    version: ">=1.0.0"
+    optional: true
+    methods:
+      - send
+
+# Agent instructions (portable across agents)
+instructions:
+  core: ./instructions/core.md
+  claude-code: ./instructions/claude-code.md
+  cursor: ./instructions/cursor.md
+
+# Triggers (when to invoke this skill)
+triggers:
+  keywords:
+    - research
+    - look up
+    - find information
+    - search for
+    - what is
+  patterns:
+    - "research {topic}"
+    - "look up {topic}"
+    - "find information about {topic}"
+    - "what do you know about {topic}"
+  commands:
+    - /research
+
+# Workflows (executable multi-step operations)
+workflows:
+  research:
+    file: ./workflows/research.yaml
+    description: Full research workflow with optional email output
+    default: true
+  quick-search:
+    file: ./workflows/quick-search.yaml
+    description: Fast browser search without email
+
+# User configuration
+config:
+  search_engine:
+    type: enum
+    description: Search engine to use
+    options:
+      - google
+      - duckduckgo
+      - bing
+    default: google
+  email_results:
+    type: boolean
+    description: Whether to email research results
+    default: false
+  max_results:
+    type: number
+    description: Maximum number of results to return
+    default: 10
+
+# Authentication requirements
+auth:
+  daemons:
+    browser: required
+    gmail: optional
+  secrets:
+    - name: SERP_API_KEY
+      description: API key for enhanced search results (optional)
+      required: false
+
+# Permission declarations
+permissions:
+  daemons:
+    browser:
+      - open
+      - snapshot
+      - fill
+      - click
+    gmail:
+      - send
+    filesystem: deny
+  network: true
+  subprocess: false
+  env_vars:
+    - SERP_API_KEY
+
+# Export configuration
+exports:
+  claude-code:
+    enabled: true
+    skill_name: research-assistant
+    triggers:
+      - research
+      - look up
+      - search
+  cursor:
+    enabled: true
+    rules_file: ./exports/cursor-rules.md
+  mcp:
+    enabled: true
+    tools_prefix: research

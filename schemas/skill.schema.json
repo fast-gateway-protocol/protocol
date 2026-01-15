@@ -1,0 +1,294 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fgp.dev/schemas/skill.schema.json",
+  "title": "FGP Skill Manifest",
+  "description": "Schema for FGP skill packages - composed tools with instructions and triggers",
+  "type": "object",
+  "required": ["name", "version", "description", "author"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "minLength": 2,
+      "maxLength": 64,
+      "description": "Skill name (lowercase, alphanumeric with hyphens)"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.]+)?$",
+      "description": "Semantic version (e.g., 1.0.0, 2.1.0-beta.1)"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 500,
+      "description": "Brief description of what the skill does"
+    },
+    "author": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "object",
+          "required": ["name"],
+          "properties": {
+            "name": { "type": "string" },
+            "email": { "type": "string", "format": "email" },
+            "url": { "type": "string", "format": "uri" }
+          }
+        }
+      ],
+      "description": "Author name or object with name, email, and URL"
+    },
+    "license": {
+      "type": "string",
+      "description": "SPDX license identifier (e.g., MIT, Apache-2.0)"
+    },
+    "repository": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL to the skill's source repository"
+    },
+    "homepage": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL to the skill's homepage or documentation"
+    },
+    "keywords": {
+      "type": "array",
+      "items": { "type": "string" },
+      "maxItems": 10,
+      "description": "Keywords for discovery"
+    },
+    "daemons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Daemon name (e.g., browser, gmail, calendar)"
+          },
+          "version": {
+            "type": "string",
+            "description": "Version requirement (e.g., >=1.0.0, ^2.0.0)"
+          },
+          "optional": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether this daemon is optional"
+          },
+          "methods": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Specific methods this skill uses (for permissions)"
+          }
+        }
+      },
+      "description": "FGP daemon dependencies"
+    },
+    "instructions": {
+      "type": "object",
+      "properties": {
+        "core": {
+          "type": "string",
+          "description": "Path to core instruction file (agent-agnostic)"
+        },
+        "claude-code": {
+          "type": "string",
+          "description": "Path to Claude Code specific instructions"
+        },
+        "cursor": {
+          "type": "string",
+          "description": "Path to Cursor specific instructions"
+        },
+        "codex": {
+          "type": "string",
+          "description": "Path to Codex specific instructions"
+        },
+        "windsurf": {
+          "type": "string",
+          "description": "Path to Windsurf specific instructions"
+        },
+        "mcp": {
+          "type": "string",
+          "description": "Path to MCP tool schema"
+        }
+      },
+      "description": "Agent-specific instruction files"
+    },
+    "triggers": {
+      "type": "object",
+      "properties": {
+        "keywords": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Keywords that trigger this skill"
+        },
+        "patterns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Natural language patterns (e.g., 'research {topic}')"
+        },
+        "commands": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Explicit commands (e.g., '/research')"
+        }
+      },
+      "description": "Trigger conditions for invoking the skill"
+    },
+    "workflows": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["file"],
+        "properties": {
+          "file": {
+            "type": "string",
+            "description": "Path to workflow YAML file"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of what this workflow does"
+          },
+          "default": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether this is the default workflow"
+          }
+        }
+      },
+      "description": "Named workflows included in this skill"
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["string", "number", "boolean", "enum", "array"],
+            "description": "Configuration value type"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of this configuration option"
+          },
+          "default": {
+            "description": "Default value"
+          },
+          "required": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether this configuration is required"
+          },
+          "options": {
+            "type": "array",
+            "description": "Valid options for enum type"
+          }
+        }
+      },
+      "description": "User-configurable options"
+    },
+    "auth": {
+      "type": "object",
+      "properties": {
+        "daemons": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "enum": ["required", "optional"]
+          },
+          "description": "Daemon auth requirements"
+        },
+        "secrets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*$",
+                "description": "Environment variable name"
+              },
+              "description": {
+                "type": "string",
+                "description": "Description of what this secret is for"
+              },
+              "required": {
+                "type": "boolean",
+                "default": false,
+                "description": "Whether this secret is required"
+              }
+            }
+          },
+          "description": "User-provided secrets (API keys, etc.)"
+        }
+      },
+      "description": "Authentication requirements"
+    },
+    "permissions": {
+      "type": "object",
+      "properties": {
+        "daemons": {
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              { "type": "string", "enum": ["all", "deny"] },
+              { "type": "array", "items": { "type": "string" } }
+            ]
+          },
+          "description": "Daemon method permissions"
+        },
+        "network": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether skill can make HTTP requests"
+        },
+        "subprocess": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether skill can spawn processes"
+        },
+        "env_vars": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Allowed environment variables"
+        }
+      },
+      "description": "Permission declarations"
+    },
+    "exports": {
+      "type": "object",
+      "properties": {
+        "claude-code": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "skill_name": { "type": "string" },
+            "triggers": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "cursor": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "rules_file": { "type": "string" }
+          }
+        },
+        "mcp": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "tools_prefix": { "type": "string" }
+          }
+        }
+      },
+      "description": "Agent export configuration"
+    }
+  },
+  "additionalProperties": false
+}

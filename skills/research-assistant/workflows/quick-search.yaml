@@ -1,0 +1,28 @@
+# Quick Search Workflow
+# Fast browser search without email output
+
+name: quick-search
+description: Fast web search without email output
+version: 1.0.0
+
+inputs:
+  topic:
+    type: string
+    required: true
+    description: The topic to search for
+
+steps:
+  - id: navigate_to_search
+    daemon: browser
+    method: open
+    params:
+      url: "https://google.com/search?q={{ topic | urlencode }}"
+
+  - id: get_results
+    daemon: browser
+    method: snapshot
+    depends_on: [navigate_to_search]
+    output: page_content
+
+outputs:
+  content: "{{ page_content }}"

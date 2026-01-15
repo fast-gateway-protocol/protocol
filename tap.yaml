@@ -1,0 +1,17 @@
+# FGP Official Skills Tap
+# This repository contains officially maintained FGP skills
+
+name: official-skills
+description: Official FGP skills maintained by the Fast Gateway Protocol team
+author: Fast Gateway Protocol
+homepage: https://fgp.dev
+
+# Categories of skills in this tap
+categories:
+  - research
+  - productivity
+  - communication
+  - development
+
+# Minimum FGP CLI version required
+min_cli_version: "0.1.0"
