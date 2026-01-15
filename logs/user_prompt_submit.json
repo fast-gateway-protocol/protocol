@@ -1,0 +1,10 @@
+[
+  {
+    "session_id": "c696a6ba-089c-47d9-95c7-3ba087b1e3a7",
+    "transcript_path": "/Users/wolfgangschoenberger/.claude/projects/-Users-wolfgangschoenberger-Projects-fgp/c696a6ba-089c-47d9-95c7-3ba087b1e3a7.jsonl",
+    "cwd": "/Users/wolfgangschoenberger/Projects/fgp/protocol",
+    "permission_mode": "bypassPermissions",
+    "hook_event_name": "UserPromptSubmit",
+    "prompt": "start implementing github tap registry system"
+  }
+]
